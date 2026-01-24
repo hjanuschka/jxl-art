@@ -46,6 +46,7 @@ $(OUT_JS): jxl.cpp $(CODEC_BUILD_DIR)/lib/libjxl.a $(CODEC_BUILD_DIR)/lib/libjxl
 		$(CODEC_DIR)/lib/extras/dec/jxl.cc \
 		$(CODEC_DIR)/lib/extras/enc/encode.cc \
 		$(CODEC_DIR)/lib/extras/dec/color_description.cc \
+		$(CODEC_DIR)/lib/extras/packed_image.cc \
 		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlidec.a \
 		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlienc.a \
 		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlicommon.a \
