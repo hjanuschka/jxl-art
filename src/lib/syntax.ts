@@ -129,6 +129,13 @@ export function tokenizeLine(line: string, lineStart: number = 0): Token[] {
       continue;
     }
     
+    // Special case: 16BitBuffers (starts with number but is a keyword)
+    if (line.slice(i).startsWith('16BitBuffers')) {
+      tokens.push({ type: 'header', value: '16BitBuffers', start, end: start + 12 });
+      i += 12;
+      continue;
+    }
+    
     // Numbers (including negative and with +/- prefix)
     if (/[+\-]?\d/.test(line.slice(i, i+2)) || /\d/.test(line[i])) {
       const match = line.slice(i).match(/^[+\-]?\d+/);
