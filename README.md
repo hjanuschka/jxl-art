@@ -11,6 +11,8 @@ npm run dev
 
 Then open http://localhost:5173
 
+Live: https://www.januschka.com/jxl-art/
+
 ## Building WASM (libjxl)
 
 The WASM module is pre-built, but you can rebuild it from the latest libjxl:
@@ -46,6 +48,13 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages Build
+
+```bash
+npm run build:ghpages
+```
+
+This builds with the correct `/jxl-art/` base path for deployment.
 ## How JXL Art Works
 
 JPEG XL's modular mode uses prediction trees to predict pixel values based on neighboring pixels. In JXL art, the prediction error is always zero, so the image consists only of the prediction tree itself.
@@ -76,12 +85,15 @@ if y > 256
 - 🔗 Share via URL
 - 💾 Auto-save code
 - ✨ Code prettifier
+- 🧠 Syntax highlighting + autocomplete
+- 🧩 Preset gallery with previews
 - 📖 Built-in help
 
 ## Credits
 
 - Original [jxl-art](https://github.com/nicories/jxl-art) by [Surma](https://surma.dev)
 - [libjxl](https://github.com/libjxl/libjxl) - Reference JPEG XL implementation
+- Blog post: https://www.januschka.com/chromium-jxl-resurrection.html
 
 ## License
 

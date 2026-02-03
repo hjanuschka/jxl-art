@@ -22,6 +22,9 @@ npm run dev
 # Build for production
 npm run build
 
+# Build for GitHub Pages (/jxl-art base path)
+npm run build:ghpages
+
 # Preview production build
 npm run preview
 ```
@@ -96,8 +99,19 @@ jxl-art/
 Build outputs to `dist/`. Can be deployed to any static hosting.
 
 For GitHub Pages at `www.januschka.com/jxl-art`:
-1. Build: `npm run build`
-2. Copy `dist/` contents to the `jxl-art/` folder in hjanuschka.github.io repo
+1. Build: `npm run build:ghpages`
+2. Copy `dist/` contents to the `jxl-art/` folder in `hjanuschka.github.io` repo
+3. Commit and push the `hjanuschka.github.io` repo
+
+```bash
+# Example deploy
+npm run build:ghpages
+cp -r dist/* ../hjanuschka.github.io/jxl-art/
+cd ../hjanuschka.github.io
+git add jxl-art/
+git commit -m "Update JXL Art"
+git push
+```
 
 ## Notes
 
