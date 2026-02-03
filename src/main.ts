@@ -28,6 +28,10 @@ const zoomOutBtn = document.getElementById('zoom-out') as HTMLButtonElement;
 const zoomFitBtn = document.getElementById('zoom-fit') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset') as HTMLButtonElement;
 const placeholderEl = document.querySelector('.placeholder') as HTMLDivElement;
+const mainEl = document.getElementById('main') as HTMLElement;
+const resizerEl = document.getElementById('resizer') as HTMLDivElement;
+const editorPanel = document.querySelector('.editor-panel') as HTMLDivElement;
+const previewPanel = document.querySelector('.preview-panel') as HTMLDivElement;
 
 // State
 let worker: Remote<WorkerApi>;
@@ -286,6 +290,85 @@ imageContainer.addEventListener('touchmove', (e) => {
 
 imageContainer.addEventListener('touchend', () => {
   isPanning = false;
+});
+
+// Panel resizer
+let isResizing = false;
+
+resizerEl.addEventListener('mousedown', (e) => {
+  isResizing = true;
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!isResizing) return;
+  
+  const mainRect = mainEl.getBoundingClientRect();
+  const isVertical = window.innerWidth <= 900;
+  
+  if (isVertical) {
+    const offsetY = e.clientY - mainRect.top;
+    const totalHeight = mainRect.height;
+    const percentage = (offsetY / totalHeight) * 100;
+    const clamped = Math.max(15, Math.min(85, percentage));
+    
+    editorPanel.style.flex = `0 0 ${clamped}%`;
+    previewPanel.style.flex = `0 0 ${100 - clamped - 2}%`;
+  } else {
+    const offsetX = e.clientX - mainRect.left;
+    const totalWidth = mainRect.width;
+    const percentage = (offsetX / totalWidth) * 100;
+    const clamped = Math.max(15, Math.min(85, percentage));
+    
+    editorPanel.style.flex = `0 0 ${clamped}%`;
+    previewPanel.style.flex = `0 0 ${100 - clamped - 2}%`;
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (isResizing) {
+    isResizing = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+});
+
+// Touch support for resizer
+resizerEl.addEventListener('touchstart', (e) => {
+  isResizing = true;
+  e.preventDefault();
+});
+
+window.addEventListener('touchmove', (e) => {
+  if (!isResizing || e.touches.length !== 1) return;
+  
+  const touch = e.touches[0];
+  const mainRect = mainEl.getBoundingClientRect();
+  const isVertical = window.innerWidth <= 900;
+  
+  if (isVertical) {
+    const offsetY = touch.clientY - mainRect.top;
+    const totalHeight = mainRect.height;
+    const percentage = (offsetY / totalHeight) * 100;
+    const clamped = Math.max(15, Math.min(85, percentage));
+    
+    editorPanel.style.flex = `0 0 ${clamped}%`;
+    previewPanel.style.flex = `0 0 ${100 - clamped - 2}%`;
+  } else {
+    const offsetX = touch.clientX - mainRect.left;
+    const totalWidth = mainRect.width;
+    const percentage = (offsetX / totalWidth) * 100;
+    const clamped = Math.max(15, Math.min(85, percentage));
+    
+    editorPanel.style.flex = `0 0 ${clamped}%`;
+    previewPanel.style.flex = `0 0 ${100 - clamped - 2}%`;
+  }
+});
+
+window.addEventListener('touchend', () => {
+  isResizing = false;
 });
 
 // Initialize

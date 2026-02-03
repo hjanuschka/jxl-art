@@ -65,12 +65,41 @@ header h1 {
 }
 
 main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display: flex;
+  gap: 0;
   padding: 1rem;
   flex: 1;
   min-height: 0;
+}
+
+.resizer {
+  width: 8px;
+  background: var(--bg);
+  cursor: col-resize;
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 0.25rem;
+}
+
+.resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.resizer:hover::after {
+  background: var(--accent);
+}
+
+.resizer:active::after {
+  background: var(--accent);
 }
 
 .editor-panel {
@@ -78,6 +107,8 @@ main {
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
+  min-width: 200px;
+  flex: 1;
 }
 
 #code {
@@ -171,6 +202,8 @@ button.primary:hover:not(:disabled) {
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
+  min-width: 200px;
+  flex: 1;
 }
 
 .image-container {
@@ -343,8 +376,25 @@ dialog::backdrop {
 /* Responsive */
 @media (max-width: 900px) {
   main {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
+    flex-direction: column;
+  }
+  
+  .resizer {
+    width: 100%;
+    height: 8px;
+    cursor: row-resize;
+    margin: 0.25rem 0;
+  }
+  
+  .resizer::after {
+    width: 40px;
+    height: 4px;
+  }
+  
+  .editor-panel,
+  .preview-panel {
+    min-height: 150px;
+    min-width: 0;
   }
 }
 
