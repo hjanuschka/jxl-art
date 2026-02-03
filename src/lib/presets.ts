@@ -359,14 +359,23 @@ if y > 200
     description: "XYB with Gaborish/EPF and 16-bit buffers",
     code: `Bitdepth 8
 Width 256
-Height 128
+Height 256
 Gaborish
 16BitBuffers
 XYB
 XYBFactors 4096 512 256
 EPF 2
 
-- Set 0`
+if c > 1
+  - Set 128
+if c > 0
+  if x > 128
+    - Gradient +2
+    - N -1
+  - Set 200
+if y > 128
+  - W +1
+  - Set 100`
   }
 ];
 
