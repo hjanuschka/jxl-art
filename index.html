@@ -51,6 +51,13 @@ if y > 256
               <div id="autocomplete" class="autocomplete hidden"></div>
             </div>
           </div>
+          <div class="controls">
+            <button id="run" class="primary" title="Run (Ctrl+Enter)">Run ▶️</button>
+            <button id="presets-btn" title="Load preset examples">Presets 🎨</button>
+            <button id="share" title="Copy share URL (Ctrl+S)">Share 🔗</button>
+            <button id="prettier" title="Format code (Ctrl+Shift+F)">Prettify ✨</button>
+            <button id="help" title="Show help">Help 📖</button>
+          </div>
           <pre id="log"></pre>
         </div>
 
@@ -70,28 +77,18 @@ if y > 256
               <button id="zoom-reset" title="Reset (100%)">1:1</button>
             </div>
           </div>
-        </div>
-      </main>
-
-      <footer class="bottom-bar">
-        <div class="controls">
-          <button id="run" class="primary" title="Run (Ctrl+Enter)">Run ▶️</button>
-          <button id="presets-btn" title="Load preset examples">Presets 🎨</button>
-          <button id="share" title="Copy share URL (Ctrl+S)">Share 🔗</button>
-          <button id="prettier" title="Format code (Ctrl+Shift+F)">Prettify ✨</button>
-          <button id="help" title="Show help">Help 📖</button>
-        </div>
-        <div class="download-controls">
-          <span id="size-info"></span>
-          <button id="download-jxl" disabled>Download JXL ⬇️</button>
-          <button id="download-png" disabled>Download PNG ⬇️</button>
+          <div class="download-controls">
+            <button id="download-jxl" disabled>Download JXL ⬇️</button>
+            <button id="download-png" disabled>Download PNG ⬇️</button>
+            <span id="size-info"></span>
+          </div>
           <div class="credits">
             <a href="https://github.com/hjanuschka/jxl-art" target="_blank">Source</a>
             <span>•</span>
             <a href="https://www.januschka.com/chromium-jxl-resurrection.html" target="_blank">JXL Blog Post</a>
           </div>
         </div>
-      </footer>
+      </main>
 
       <dialog id="help-dialog">
         <article id="help-content"></article>

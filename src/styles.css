@@ -381,15 +381,12 @@ button.primary:hover:not(:disabled) {
   flex: 1;
 }
 
-/* Bottom bar */
-.bottom-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: var(--bg-light);
-  border-top: 1px solid var(--border);
-  gap: 1rem;
+.preview-panel .download-controls {
+  justify-content: flex-start;
+}
+
+.preview-panel .credits {
+  justify-content: flex-end;
 }
 
 .image-container {
@@ -484,6 +481,7 @@ button.primary:hover:not(:disabled) {
 }
 
 #size-info {
+  margin-left: auto;
   font-size: 0.8rem;
   color: var(--text-dim);
 }
@@ -493,9 +491,6 @@ button.primary:hover:not(:disabled) {
   gap: 0.5rem;
   align-items: center;
   font-size: 0.75rem;
-  margin-left: 1rem;
-  padding-left: 1rem;
-  border-left: 1px solid var(--border);
 }
 
 .credits a {
