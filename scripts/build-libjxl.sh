@@ -132,7 +132,10 @@ val jxl_from_tree(std::string code) {
     return val(typed_memory_view(data.size(), data.data()));
 }
 
-val decode(std::string data) {
+val decode(val jxlDataVal) {
+    // Convert JS Uint8Array to C++ vector
+    std::vector<uint8_t> jxlData = vecFromJSArray<uint8_t>(jxlDataVal);
+    
     auto png_encoder = jxl::extras::GetAPNGEncoder();
     if (!png_encoder) {
         return val("Failed to get PNG encoder");
@@ -145,8 +148,8 @@ val decode(std::string data) {
     
     size_t decoded_bytes;
     if (!jxl::extras::DecodeImageJXL(
-            reinterpret_cast<const uint8_t*>(data.c_str()),
-            data.size(), dparams, &decoded_bytes, &ppf)) {
+            jxlData.data(),
+            jxlData.size(), dparams, &decoded_bytes, &ppf)) {
         return val("Failed to decode JXL");
     }
     
