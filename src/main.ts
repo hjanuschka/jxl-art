@@ -19,7 +19,7 @@ const previewImg = document.getElementById('preview') as HTMLImageElement;
 const downloadJxlBtn = document.getElementById('download-jxl') as HTMLButtonElement;
 const downloadPngBtn = document.getElementById('download-png') as HTMLButtonElement;
 const sizeInfoEl = document.getElementById('size-info') as HTMLSpanElement;
-const logEl = document.getElementById('log') as HTMLPreElement;
+const logEl = document.getElementById('log') as HTMLSpanElement;
 
 // Zoom elements
 const imageContainer = document.getElementById('image-container') as HTMLDivElement;
