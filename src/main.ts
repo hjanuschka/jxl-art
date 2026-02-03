@@ -47,10 +47,18 @@ let supportsJxl = false;
 async function detectJxlSupport(): Promise<boolean> {
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(img.width === 1);
-    img.onerror = () => resolve(false);
-    // Smallest valid JXL (1x1 pixel)
-    img.src = 'data:image/jxl;base64,/woIELASCAgQAFwASxLFgkWAHL0xqnCBCV0qDp901Te/5QM=';
+    // Add timeout in case browser hangs
+    const timeout = setTimeout(() => resolve(false), 1000);
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve(img.width === 1 && img.height === 1);
+    };
+    img.onerror = () => {
+      clearTimeout(timeout);
+      resolve(false);
+    };
+    // Valid 1x1 red JXL created with cjxl
+    img.src = 'data:image/jxl;base64,/woAkAEAE4gCAMAAtZ8gAAAVKqOMG7yc6/nyQ4fFtI3rDG21bWEJY7O9MEhIOIONiwTfnKWRaQYkopIE';
   });
 }
 
