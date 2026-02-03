@@ -92,6 +92,11 @@ async function run() {
     const message = e instanceof Error ? e.message : 'Unknown error';
     log(message, 'error');
     console.error(e);
+    
+    // Disable download buttons on error
+    downloadJxlBtn.disabled = true;
+    downloadPngBtn.disabled = true;
+    sizeInfoEl.textContent = '';
   } finally {
     isRunning = false;
     document.body.classList.remove('loading');

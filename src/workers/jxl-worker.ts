@@ -3,6 +3,7 @@ import type { RenderResult, WorkerApi } from '../lib/types';
 import { prettifyTree } from '../lib/prettier';
 
 let module: any = null;
+let lastError: string[] = [];
 
 async function initModule() {
   if (module) return;
@@ -15,6 +16,14 @@ async function initModule() {
         return new URL('../../wasm/libjxl/jxl.wasm', import.meta.url).href;
       }
       return path;
+    },
+    // Capture stderr from libjxl for error messages
+    printErr: (text: string) => {
+      console.error('[libjxl]', text);
+      lastError.push(text);
+    },
+    print: (text: string) => {
+      console.log('[libjxl]', text);
     }
   });
   
@@ -25,20 +34,52 @@ const workerApi: WorkerApi = {
   async render(code: string): Promise<RenderResult> {
     await initModule();
     
+    // Clear previous errors
+    lastError = [];
+    
     // Encode tree to JXL
-    const jxlResult = module.jxl_from_tree(code);
+    let jxlResult;
+    try {
+      jxlResult = module.jxl_from_tree(code);
+    } catch (e: unknown) {
+      const stderr = lastError.join('\n');
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new Error(stderr || `Encode failed: ${msg}`);
+    }
+    
+    // Check for errors captured from stderr
+    if (lastError.length > 0) {
+      const stderr = lastError.join('\n');
+      // Filter out non-error messages if needed
+      if (stderr.toLowerCase().includes('error') || stderr.toLowerCase().includes('fail')) {
+        throw new Error(stderr);
+      }
+    }
+    
     if (typeof jxlResult === 'string') {
+      // libjxl returns error message as string
       throw new Error(jxlResult);
     }
     if (!jxlResult || jxlResult.length === 0) {
-      throw new Error('jxl_from_tree returned empty result');
+      const stderr = lastError.join('\n');
+      throw new Error(stderr || 'Compilation failed - check your tree syntax');
     }
     const jxlData = new Uint8Array(jxlResult);
     
     // Decode JXL to PNG
-    const pngResult = module.decode(jxlData);
+    lastError = [];
+    let pngResult;
+    try {
+      pngResult = module.decode(jxlData);
+    } catch (e: unknown) {
+      const stderr = lastError.join('\n');
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new Error(stderr || `Decode failed: ${msg}`);
+    }
+    
     if (!pngResult || pngResult.length === 0) {
-      throw new Error('Failed to decode JXL to PNG');
+      const stderr = lastError.join('\n');
+      throw new Error(stderr || 'Failed to decode JXL to PNG');
     }
     const pngData = new Uint8Array(pngResult);
 
