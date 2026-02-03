@@ -210,7 +210,7 @@ cat > "$OUTPUT_DIR/build-info.json" << EOF
 {
   "builtAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
   "commit": "$COMMIT",
-  "branch": "$LIBJXL_BRANCH"
+  "ref": "$LIBJXL_REF"
 }
 EOF
 
