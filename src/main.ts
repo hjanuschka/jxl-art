@@ -117,6 +117,9 @@ async function run() {
     previewImg.src = url;
     placeholderEl.classList.add('hidden');
     
+    // Fit to view once image loads
+    previewImg.onload = () => fitToView();
+    
     // Update UI
     downloadJxlBtn.disabled = false;
     downloadPngBtn.disabled = supportsJxl; // PNG not available with native JXL
