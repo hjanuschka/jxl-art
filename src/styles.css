@@ -469,19 +469,19 @@ button.primary:hover:not(:disabled) {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 #size-info {
+  margin-left: auto;
   font-size: 0.8rem;
   color: var(--text-dim);
 }
 
 .credits {
-  margin-left: auto;
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  justify-content: flex-end;
   font-size: 0.75rem;
 }
 
