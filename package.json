@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "build:ghpages": "tsc && BASE_PATH=/jxl-art/ vite build",
     "preview": "vite preview",
-    "build:wasm": "./scripts/build-libjxl.sh"
+    "build:wasm": "./scripts/build-libjxl.sh",
+    "validate:presets": "node scripts/validate-presets.js"
   },
   "keywords": [
     "jpeg-xl",
