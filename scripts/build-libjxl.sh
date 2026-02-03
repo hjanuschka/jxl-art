@@ -8,10 +8,10 @@ OUTPUT_DIR="$PROJECT_DIR/wasm/libjxl"
 
 # Configuration
 LIBJXL_REPO="https://github.com/libjxl/libjxl.git"
-LIBJXL_BRANCH="${LIBJXL_BRANCH:-main}"
+LIBJXL_REF="${LIBJXL_REF:-HEAD}"  # Use HEAD (latest) by default, or specify commit/branch/tag
 
 echo "=== Building libjxl WASM ==="
-echo "Branch: $LIBJXL_BRANCH"
+echo "Ref: $LIBJXL_REF"
 echo ""
 
 # Check for emscripten
@@ -30,16 +30,21 @@ echo ""
 mkdir -p "$BUILD_DIR"
 if [ ! -d "$BUILD_DIR/libjxl" ]; then
     echo "Cloning libjxl..."
-    git clone --depth 1 --branch "$LIBJXL_BRANCH" "$LIBJXL_REPO" "$BUILD_DIR/libjxl"
+    git clone "$LIBJXL_REPO" "$BUILD_DIR/libjxl"
     cd "$BUILD_DIR/libjxl"
-    git submodule update --init --depth 1 --recursive
 else
     echo "Updating libjxl..."
     cd "$BUILD_DIR/libjxl"
-    git fetch origin "$LIBJXL_BRANCH" --depth 1
-    git checkout FETCH_HEAD
-    git submodule update --init --depth 1 --recursive
+    git fetch origin
 fi
+
+# Checkout the specified ref (HEAD = latest main)
+if [ "$LIBJXL_REF" = "HEAD" ]; then
+    git checkout origin/main
+else
+    git checkout "$LIBJXL_REF"
+fi
+git submodule update --init --recursive
 
 COMMIT=$(git rev-parse --short HEAD)
 echo "Building from commit: $COMMIT"
