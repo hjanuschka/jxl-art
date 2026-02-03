@@ -481,12 +481,6 @@ button.primary:hover:not(:disabled) {
   align-items: center;
 }
 
-#size-info {
-  margin-left: auto;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-}
-
 .credits {
   display: flex;
   gap: 0.5rem;
@@ -506,6 +500,10 @@ button.primary:hover:not(:disabled) {
 
 .credits span {
   color: var(--border);
+}
+
+.bottom-spacer {
+  height: 24px;
 }
 
 /* Help Dialog */

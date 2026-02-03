@@ -18,7 +18,7 @@ const helpContentEl = document.getElementById('help-content') as HTMLElement;
 const previewImg = document.getElementById('preview') as HTMLImageElement;
 const downloadJxlBtn = document.getElementById('download-jxl') as HTMLButtonElement;
 const downloadPngBtn = document.getElementById('download-png') as HTMLButtonElement;
-const sizeInfoEl = document.getElementById('size-info') as HTMLSpanElement;
+const sizeInfoEl = document.getElementById('size-info') as HTMLSpanElement | null;
 const logEl = document.getElementById('log') as HTMLSpanElement;
 
 // Zoom elements
@@ -127,7 +127,9 @@ async function run() {
     // Update UI
     downloadJxlBtn.disabled = false;
     downloadPngBtn.disabled = false; // Always enable - convert on demand
-    sizeInfoEl.textContent = `JXL: ${result.jxlData.byteLength} bytes${supportsJxl ? ' (native)' : ''}`;
+    if (sizeInfoEl) {
+      sizeInfoEl.textContent = `JXL: ${result.jxlData.byteLength} bytes${supportsJxl ? ' (native)' : ''}`;
+    }
     
     log(`Success! JXL size: ${result.jxlData.byteLength} bytes`, 'success');
     
@@ -141,7 +143,9 @@ async function run() {
     // Disable download buttons on error
     downloadJxlBtn.disabled = true;
     downloadPngBtn.disabled = true;
-    sizeInfoEl.textContent = '';
+    if (sizeInfoEl) {
+      sizeInfoEl.textContent = '';
+    }
   } finally {
     isRunning = false;
     document.body.classList.remove('loading');
