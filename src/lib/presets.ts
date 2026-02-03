@@ -376,6 +376,375 @@ if c > 0
 if y > 128
   - W +1
   - Set 100`
+  },
+  {
+    name: "Aurora Borealis",
+    description: "Northern lights gradient waves",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 6
+
+if c > 1
+  if y > 256
+    - Gradient +4
+    - W -2
+  - Set 40
+if c > 0
+  if x > 256
+    if y > 384
+      - N +3
+      - Set 200
+    - Weighted +2
+    - Set 80
+  if y > 128
+    - Gradient +1
+    - Set 150
+  - Set 60
+if y > 384
+  if x > 256
+    - Set 255
+    - Gradient +3
+  - W +2
+  - N -1
+if x > 128
+  if y > 256
+    - AvgW+N +2
+    - Weighted -1
+  - Gradient +1
+  - Set 100
+- Set 80`
+  },
+  {
+    name: "Crystal Cave",
+    description: "Geometric crystal patterns",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 17
+
+if c > 1
+  if x > 256
+    - N +3
+    - Set 80
+  - Set 180
+if c > 0
+  if y > 256
+    if x > 256
+      - Gradient +4
+      - W -2
+    - Weighted +2
+    - Set 100
+  - N +1
+  - Set 200
+if x > 384
+  if y > 384
+    - Set 255
+    - Set 0
+  if y > 128
+    - Gradient +2
+    - W -1
+  - Set 50
+if y > 128
+  if x > 128
+    if W > 128
+      - N +2
+      - Gradient -1
+    - AvgW+N +1
+    - Set 150
+  - W +1
+  - Set 80
+- Set 128`
+  },
+  {
+    name: "Sunset Horizon",
+    description: "Warm sunset color bands",
+    code: `Bitdepth 8
+Width 512
+Height 256
+RCT 6
+
+if c > 1
+  if y > 128
+    - Set 60
+    - Set 180
+  - Set 220
+if c > 0
+  if y > 200
+    - Gradient +2
+    - Set 80
+  if y > 100
+    - W +1
+    - Set 150
+  - Set 200
+if y > 200
+  if x > 256
+    - Gradient +3
+    - W -2
+  - N +1
+  - Set 100
+if y > 100
+  if x > 128
+    - AvgW+N +2
+    - Weighted -1
+  - Gradient +1
+  - Set 180
+- Set 255`
+  },
+  {
+    name: "Digital Rain",
+    description: "Matrix-style vertical patterns",
+    code: `Bitdepth 8
+Width 512
+Height 512
+
+if c > 0
+  - W 0
+if x > 480
+  - Set 255
+  - Gradient +2
+if x > 32
+  if y > 32
+    if W > 128
+      if N > 100
+        - Set 200
+        - Gradient -1
+      - N +2
+      - Set 80
+    if y > 256
+      - Gradient +3
+      - W -1
+    - Weighted +1
+    - Set 100
+  - Set 50
+  - N +1
+- Set 0`
+  },
+  {
+    name: "Nebula Clouds",
+    description: "Space nebula effect",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 6
+
+if c > 1
+  if y > 256
+    if x > 256
+      - Gradient +3
+      - Set 100
+    - W +2
+    - Set 60
+  - Set 180
+if c > 0
+  if x > 384
+    - N +2
+    - Set 200
+  if x > 128
+    - Gradient +1
+    - Set 150
+  - Set 80
+if y > 384
+  if x > 256
+    - Set 255
+    - Weighted +2
+  - AvgW+N +1
+  - Set 120
+if x > 256
+  if y > 128
+    - Gradient +2
+    - W -1
+  - N +1
+  - Set 100
+- Set 60`
+  },
+  {
+    name: "Tessellation",
+    description: "Interlocking geometric tiles",
+    code: `Bitdepth 8
+Width 512
+Height 512
+
+if c > 0
+  - W 0
+if x > 256
+  if y > 256
+    if W > 128
+      if N > 100
+        - Gradient +3
+        - Set 50
+      - W +2
+      - Set 200
+    if W > 50
+      - N +1
+      - Gradient -1
+    - Set 150
+    - W -1
+  if N > 128
+    - Weighted +2
+    - Set 100
+  - AvgW+N +1
+  - Set 80
+if y > 128
+  if W > 100
+    - N +2
+    - Gradient +1
+  - Set 180
+  - W -1
+- Set 128`
+  },
+  {
+    name: "Coral Reef",
+    description: "Organic underwater patterns",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 6
+
+if c > 1
+  if x > 256
+    - Set 180
+    - Set 100
+  - Set 220
+if c > 0
+  if y > 256
+    - Gradient +3
+    - W -2
+  - N +2
+  - Set 150
+if y > 384
+  if x > 384
+    - Set 255
+    - Gradient +2
+  if x > 128
+    - W +2
+    - N -1
+  - Set 80
+  - Weighted +1
+if x > 128
+  if y > 128
+    if W > 128
+      - AvgW+N +2
+      - Gradient -1
+    - W +1
+    - Set 200
+  - N +1
+  - Set 100
+- Set 60`
+  },
+  {
+    name: "Quantum Field",
+    description: "Wave interference patterns",
+    code: `Bitdepth 8
+Width 512
+Height 512
+
+if c > 0
+  - W 0
+if x > 384
+  if y > 384
+    - Set 255
+    - Gradient +3
+  if y > 128
+    - W +2
+    - N -2
+  - Set 50
+if x > 128
+  if y > 384
+    - N +3
+    - Set 200
+  if y > 128
+    if W > 128
+      - Gradient +2
+      - AvgW+N -1
+    if N > 100
+      - W +1
+      - Set 180
+    - Weighted +2
+    - Set 100
+  - Set 80
+  - N +1
+- Set 150`
+  },
+  {
+    name: "Stained Glass",
+    description: "Cathedral window effect",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 17
+
+if c > 1
+  if y > 256
+    - W +3
+    - Set 80
+  - Set 200
+if c > 0
+  if x > 256
+    if y > 256
+      - Gradient +4
+      - N -2
+    - W +2
+    - Set 150
+  - Set 100
+if x > 448
+  if y > 256
+    - Set 255
+    - Gradient +2
+  - N +1
+  - Set 50
+if y > 64
+  if x > 64
+    if W > 128
+      - Gradient +2
+      - Set 180
+    if N > 100
+      - W +1
+      - AvgW+N -1
+    - Weighted +2
+    - Set 120
+  - Set 80
+  - N +1
+- Set 150`
+  },
+  {
+    name: "Volcanic",
+    description: "Molten lava flow",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 6
+
+if c > 1
+  if y > 384
+    - Set 20
+    - Set 80
+  - Set 40
+if c > 0
+  if y > 256
+    - Gradient +2
+    - Set 100
+  - N +1
+  - Set 200
+if y > 448
+  if x > 256
+    - Set 255
+    - Gradient +3
+  - W +2
+  - Set 220
+if y > 256
+  if x > 256
+    if W > 128
+      - Gradient +2
+      - Set 150
+    - N +1
+    - W -1
+  - AvgW+N +2
+  - Set 180
+if x > 128
+  - Weighted +1
+  - Set 100
+- Set 80`
   }
 ];
 
