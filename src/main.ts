@@ -109,8 +109,10 @@ async function run() {
     currentJxlData = result.jxlData;
     
     // Display - use native JXL if supported, otherwise PNG
+    // Force PNG for 16BitBuffers (browsers can't display natively)
+    const uses16Bit = /^\s*16BitBuffers\b/im.test(code);
     let displayBlob: Blob;
-    if (supportsJxl) {
+    if (supportsJxl && !uses16Bit) {
       displayBlob = new Blob([new Uint8Array(result.jxlData)], { type: 'image/jxl' });
       currentPngBlob = null; // PNG not generated when using native JXL
     } else {

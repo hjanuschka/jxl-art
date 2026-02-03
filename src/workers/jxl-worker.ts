@@ -36,7 +36,10 @@ const workerApi: WorkerApi = {
     
     // Clear previous errors
     lastError = [];
-    const skipPng = options?.skipPng ?? false;
+    
+    // Force PNG rendering if 16BitBuffers is used (browsers can't display natively)
+    const uses16Bit = /^\s*16BitBuffers\b/im.test(code);
+    const skipPng = uses16Bit ? false : (options?.skipPng ?? false);
     
     // Encode tree to JXL
     let jxlResult;

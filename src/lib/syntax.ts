@@ -14,6 +14,8 @@ export const HEADER_KEYWORDS = [
   'Gaborish',
   'EPF',
   '16BitBuffers',
+  'Squeeze',
+  'CbYCr',
 ] as const;
 
 export const PROPERTIES = [
