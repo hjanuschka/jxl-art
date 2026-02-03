@@ -10,6 +10,9 @@ export const HEADER_KEYWORDS = [
   'NotLast',
   'FramePos',
   'XYB',
+  'XYBFactors',
+  'Gaborish',
+  'EPF',
   '16BitBuffers',
 ] as const;
 

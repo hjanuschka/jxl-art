@@ -1,12 +1,14 @@
 // Tree code formatter/prettifier
 
-const ZERO_ARGS_HEADER = ['squeeze', 'xyb', 'cbycr', 'alpha', 'notlast', '16bitbuffers'];
+const ZERO_ARGS_HEADER = ['squeeze', 'xyb', 'cbycr', 'alpha', 'notlast', '16bitbuffers', 'gaborish'];
 const TWO_ARGS_HEADER = ['framepos'];
+const THREE_ARGS_HEADER = ['xybfactors'];
 
 function getNumHeaderArgs(name: string): number {
   const lower = name.toLowerCase();
   if (ZERO_ARGS_HEADER.includes(lower)) return 0;
   if (TWO_ARGS_HEADER.includes(lower)) return 2;
+  if (THREE_ARGS_HEADER.includes(lower)) return 3;
   return 1;
 }
 

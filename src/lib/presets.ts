@@ -353,6 +353,20 @@ if y > 200
     - W +3
     - AvgW+N +1
   - Set 50`
+  },
+  {
+    name: "XYB + Gaborish",
+    description: "XYB with Gaborish/EPF and 16-bit buffers",
+    code: `Bitdepth 8
+Width 256
+Height 128
+Gaborish
+16BitBuffers
+XYB
+XYBFactors 4096 512 256
+EPF 2
+
+- Set 0`
   }
 ];
 
