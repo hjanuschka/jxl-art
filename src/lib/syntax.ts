@@ -2,7 +2,7 @@
 
 export const HEADER_KEYWORDS = [
   'Bitdepth',
-  'Width', 
+  'Width',
   'Height',
   'RCT',
   'Orientation',
@@ -10,6 +10,7 @@ export const HEADER_KEYWORDS = [
   'NotLast',
   'FramePos',
   'XYB',
+  '16BitBuffers',
 ] as const;
 
 export const PROPERTIES = [

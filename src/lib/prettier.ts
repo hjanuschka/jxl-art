@@ -1,6 +1,6 @@
 // Tree code formatter/prettifier
 
-const ZERO_ARGS_HEADER = ['squeeze', 'xyb', 'cbycr', 'alpha', 'notlast'];
+const ZERO_ARGS_HEADER = ['squeeze', 'xyb', 'cbycr', 'alpha', 'notlast', '16bitbuffers'];
 const TWO_ARGS_HEADER = ['framepos'];
 
 function getNumHeaderArgs(name: string): number {
