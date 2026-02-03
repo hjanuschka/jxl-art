@@ -30,7 +30,10 @@ const zoomFitBtn = document.getElementById('zoom-fit') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset') as HTMLButtonElement;
 const placeholderEl = document.querySelector('.placeholder') as HTMLDivElement;
 const jxlSupportEl = document.getElementById('jxl-support') as HTMLSpanElement;
-const presetsSelect = document.getElementById('presets') as HTMLSelectElement;
+const presetsBtn = document.getElementById('presets-btn') as HTMLButtonElement;
+const presetsDialog = document.getElementById('presets-dialog') as HTMLDialogElement;
+const presetsGrid = document.getElementById('presets-grid') as HTMLDivElement;
+const closePresetsBtn = document.getElementById('close-presets') as HTMLButtonElement;
 const mainEl = document.getElementById('main') as HTMLElement;
 const resizerEl = document.getElementById('resizer') as HTMLDivElement;
 const editorPanel = document.querySelector('.editor-panel') as HTMLDivElement;
@@ -205,21 +208,36 @@ codeEl.addEventListener('keydown', (e) => {
 // Code change - save to storage
 codeEl.addEventListener('input', () => {
   saveCode(codeEl.value);
-  // Reset preset dropdown when user edits code
-  presetsSelect.value = '';
 });
 
-// Presets dropdown
-presetsSelect.addEventListener('change', () => {
-  const selected = presetsSelect.value;
-  if (!selected) return;
+// Presets modal
+presetsBtn.addEventListener('click', () => {
+  presetsDialog.showModal();
+});
+
+closePresetsBtn.addEventListener('click', () => {
+  presetsDialog.close();
+});
+
+presetsDialog.addEventListener('click', (e) => {
+  if (e.target === presetsDialog) {
+    presetsDialog.close();
+  }
+});
+
+// Handle preset selection
+presetsGrid.addEventListener('click', (e) => {
+  const card = (e.target as HTMLElement).closest('.preset-card');
+  if (!card) return;
   
-  const preset = presets.find(p => p.name === selected);
+  const presetName = card.getAttribute('data-preset');
+  const preset = presets.find(p => p.name === presetName);
   if (preset) {
     codeEl.value = preset.code;
     saveCode(preset.code);
+    presetsDialog.close();
     log(`Loaded preset: ${preset.name}`, 'info');
-    run(); // Auto-run when preset is selected
+    run();
   }
 });
 
@@ -418,15 +436,46 @@ window.addEventListener('touchend', () => {
   isResizing = false;
 });
 
-// Populate presets dropdown
-function populatePresets() {
+// Generate preview for a preset
+async function generatePresetPreview(code: string): Promise<string> {
+  try {
+    const result = await worker.render(code);
+    const blob = supportsJxl 
+      ? new Blob([new Uint8Array(result.jxlData)], { type: 'image/jxl' })
+      : new Blob([new Uint8Array(result.pngData)], { type: 'image/png' });
+    return URL.createObjectURL(blob);
+  } catch {
+    return ''; // Return empty on error
+  }
+}
+
+// Populate presets grid with previews
+async function populatePresets() {
+  // Create cards with placeholder first
   presets.forEach(preset => {
-    const option = document.createElement('option');
-    option.value = preset.name;
-    option.textContent = preset.name;
-    option.title = preset.description;
-    presetsSelect.appendChild(option);
+    const card = document.createElement('div');
+    card.className = 'preset-card loading';
+    card.setAttribute('data-preset', preset.name);
+    card.innerHTML = `
+      <img src="" alt="${preset.name}" />
+      <p class="preset-name">${preset.name}</p>
+      <p class="preset-desc">${preset.description}</p>
+    `;
+    presetsGrid.appendChild(card);
   });
+
+  // Generate previews in background
+  for (const preset of presets) {
+    const card = presetsGrid.querySelector(`[data-preset="${preset.name}"]`);
+    if (!card) continue;
+    
+    const imgUrl = await generatePresetPreview(preset.code);
+    const img = card.querySelector('img');
+    if (img && imgUrl) {
+      img.src = imgUrl;
+    }
+    card.classList.remove('loading');
+  }
 }
 
 // Initialize
