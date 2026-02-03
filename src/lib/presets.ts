@@ -217,6 +217,142 @@ if y > 256
     - Set 255
     - Set 0
   - Set 128`
+  },
+  {
+    name: "Mandelbrot-ish",
+    description: "Fractal-inspired pattern with color bands",
+    code: `Bitdepth 8
+Width 512
+Height 512
+RCT 6
+
+if c > 1
+  if x > 256
+    if y > 128
+      - Set 50
+      - Set 200
+    - Set 150
+if c > 0
+  if y > 256
+    if x > 128
+      - Gradient +3
+      - N -2
+    - W +1
+  - Set 100
+if x > 384
+  if y > 384
+    - Weighted +20
+    - Set 180
+  - Gradient -1`
+  },
+  {
+    name: "Vaporwave",
+    description: "Retro aesthetic gradient",
+    code: `Bitdepth 8
+Width 512
+Height 256
+RCT 6
+
+if c > 1
+  if y > 128
+    - Set 200
+    - Set 80
+  - Gradient +2
+if c > 0
+  if y > 200
+    - W +5
+    - N -3
+  - Set 150
+if y > 128
+  - AvgW+N +1
+  - Set 255`
+  },
+  {
+    name: "Grid Pattern",
+    description: "Clean grid lines",
+    code: `Bitdepth 8
+Width 512
+Height 512
+
+if c > 0
+  - W 0
+if x > 63
+  if x > 127
+    if x > 191
+      if x > 255
+        if x > 319
+          if x > 383
+            if x > 447
+              - Set 40
+              - Set 255
+            - Set 255
+          - Set 40
+        - Set 255
+      - Set 40
+    - Set 255
+  - Set 40
+if y > 63
+  if y > 127
+    if y > 191
+      if y > 255
+        if y > 319
+          if y > 383
+            if y > 447
+              - N 0
+              - Set 255
+            - Set 255
+          - N 0
+        - Set 255
+      - N 0
+    - Set 255
+  - N 0
+- Set 40`
+  },
+  {
+    name: "Fire",
+    description: "Flame-like colors",
+    code: `Bitdepth 8
+Width 256
+Height 256
+RCT 6
+
+if c > 1
+  if y > 128
+    - Set 0
+    - Set 50
+  - Weighted +10
+if c > 0
+  if y > 200
+    - Set 200
+    - N -5
+  if y > 100
+    - Gradient +3
+    - Set 255
+  - Set 128
+if y > 180
+  - W +20
+  - Set 255`
+  },
+  {
+    name: "Ocean Waves",
+    description: "Blue wave pattern",
+    code: `Bitdepth 8
+Width 512
+Height 256
+RCT 6
+
+if c > 1
+  - Set 180
+if c > 0
+  if y > 128
+    - Gradient +1
+    - N -2
+  - Set 80
+if y > 200
+  if x > 256
+    - W +3
+    - AvgW+N +1
+  - Set 50`
   }
 ];
 

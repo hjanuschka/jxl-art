@@ -146,6 +146,36 @@ main {
   flex: 1;
 }
 
+.code-editor {
+  flex: 1;
+  display: flex;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.code-editor:focus-within {
+  border-color: var(--accent);
+}
+
+.line-numbers {
+  padding: 1rem 0.5rem 1rem 0.75rem;
+  background: var(--bg);
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: right;
+  user-select: none;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.line-numbers span {
+  display: block;
+}
+
 #code {
   flex: 1;
   resize: none;
@@ -153,16 +183,12 @@ main {
   font-size: 13px;
   line-height: 1.5;
   padding: 1rem;
-  background: var(--bg-light);
+  background: transparent;
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: none;
   outline: none;
   tab-size: 2;
-}
-
-#code:focus {
-  border-color: var(--accent);
+  min-height: 0;
 }
 
 .controls {

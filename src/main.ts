@@ -30,6 +30,7 @@ const zoomFitBtn = document.getElementById('zoom-fit') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset') as HTMLButtonElement;
 const placeholderEl = document.querySelector('.placeholder') as HTMLDivElement;
 const jxlSupportEl = document.getElementById('jxl-support') as HTMLSpanElement;
+const lineNumbersEl = document.getElementById('line-numbers') as HTMLDivElement;
 const presetsBtn = document.getElementById('presets-btn') as HTMLButtonElement;
 const presetsDialog = document.getElementById('presets-dialog') as HTMLDialogElement;
 const presetsGrid = document.getElementById('presets-grid') as HTMLDivElement;
@@ -157,27 +158,8 @@ function downloadBlob(blob: Blob, filename: string) {
 
 // Event Handlers
 runBtn.addEventListener('click', run);
-
-shareBtn.addEventListener('click', async () => {
-  try {
-    await copyShareUrl(codeEl.value);
-    log('URL copied to clipboard!', 'success');
-  } catch {
-    log('Failed to copy URL', 'error');
-  }
-});
-
-prettierBtn.addEventListener('click', async () => {
-  try {
-    const formatted = await worker.prettier(codeEl.value);
-    codeEl.value = formatted;
-    await saveCode(formatted);
-    log('Code formatted', 'success');
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Format error';
-    log(message, 'error');
-  }
-});
+shareBtn.addEventListener('click', handleShare);
+prettierBtn.addEventListener('click', handlePrettify);
 
 helpBtn.addEventListener('click', () => {
   helpContentEl.innerHTML = helpContent;
@@ -208,10 +190,80 @@ codeEl.addEventListener('keydown', (e) => {
   }
 });
 
-// Code change - save to storage
+// Update line numbers
+function updateLineNumbers() {
+  const lines = codeEl.value.split('\n').length;
+  const numbers = Array.from({ length: lines }, (_, i) => `<span>${i + 1}</span>`).join('');
+  lineNumbersEl.innerHTML = numbers;
+}
+
+// Sync scroll between line numbers and code
+codeEl.addEventListener('scroll', () => {
+  lineNumbersEl.scrollTop = codeEl.scrollTop;
+});
+
+// Tab key inserts spaces instead of changing focus
+codeEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = codeEl.selectionStart;
+    const end = codeEl.selectionEnd;
+    codeEl.value = codeEl.value.substring(0, start) + '  ' + codeEl.value.substring(end);
+    codeEl.selectionStart = codeEl.selectionEnd = start + 2;
+    updateLineNumbers();
+    saveCode(codeEl.value);
+  }
+});
+
+// Code change - save to storage and update line numbers
 codeEl.addEventListener('input', () => {
   saveCode(codeEl.value);
+  updateLineNumbers();
 });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter = Run
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    run();
+  }
+  // Ctrl/Cmd + S = Share
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    handleShare();
+  }
+  // Ctrl/Cmd + Shift + F = Prettify
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'f') {
+    e.preventDefault();
+    handlePrettify();
+  }
+  // Escape = Close dialogs
+  if (e.key === 'Escape') {
+    if (helpDialog.open) helpDialog.close();
+    if (presetsDialog.open) presetsDialog.close();
+  }
+});
+
+async function handleShare() {
+  try {
+    await copyShareUrl(codeEl.value);
+    log('Share URL copied to clipboard!', 'success');
+  } catch {
+    log('Failed to copy URL', 'error');
+  }
+}
+
+async function handlePrettify() {
+  try {
+    const formatted = await worker.prettier(codeEl.value);
+    codeEl.value = formatted;
+    saveCode(formatted);
+    log('Code formatted', 'success');
+  } catch {
+    log('Failed to format code', 'error');
+  }
+}
 
 // Presets modal
 presetsBtn.addEventListener('click', () => {
@@ -237,6 +289,7 @@ presetsGrid.addEventListener('click', (e) => {
   const preset = presets.find(p => p.name === presetName);
   if (preset) {
     codeEl.value = preset.code;
+    updateLineNumbers();
     saveCode(preset.code);
     presetsDialog.close();
     log(`Loaded preset: ${preset.name}`, 'info');
@@ -508,7 +561,10 @@ async function init() {
     }
   }
   
-  log('Ready. Click Run to generate image.', 'info');
+  // Initialize line numbers
+  updateLineNumbers();
+  
+  log('Ready. Press Ctrl+Enter to generate image.', 'info');
   
   // Auto-run if code came from URL
   if (urlCode) {
