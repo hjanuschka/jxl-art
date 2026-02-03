@@ -1,5 +1,5 @@
 import { expose } from 'comlink';
-import type { RenderResult, WorkerApi } from '../lib/types';
+import type { RenderResult, RenderOptions, WorkerApi } from '../lib/types';
 import { prettifyTree } from '../lib/prettier';
 
 let module: any = null;
@@ -31,11 +31,12 @@ async function initModule() {
 }
 
 const workerApi: WorkerApi = {
-  async render(code: string): Promise<RenderResult> {
+  async render(code: string, options?: RenderOptions): Promise<RenderResult> {
     await initModule();
     
     // Clear previous errors
     lastError = [];
+    const skipPng = options?.skipPng ?? false;
     
     // Encode tree to JXL
     let jxlResult;
@@ -65,6 +66,11 @@ const workerApi: WorkerApi = {
       throw new Error(stderr || 'Compilation failed - check your tree syntax');
     }
     const jxlData = new Uint8Array(jxlResult);
+    
+    // Skip PNG decoding if native JXL is supported
+    if (skipPng) {
+      return { jxlData, pngData: new Uint8Array(0) };
+    }
     
     // Decode JXL to PNG
     lastError = [];

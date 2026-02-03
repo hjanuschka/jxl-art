@@ -3,6 +3,7 @@ import type { WorkerApi } from './lib/types';
 import { helpContent } from './lib/help-content';
 import { saveCode, loadCode } from './lib/storage';
 import { getCodeFromUrl, copyShareUrl } from './lib/url';
+import { presets } from './lib/presets';
 
 // DOM Elements
 const codeEl = document.getElementById('code') as HTMLTextAreaElement;
@@ -28,6 +29,8 @@ const zoomOutBtn = document.getElementById('zoom-out') as HTMLButtonElement;
 const zoomFitBtn = document.getElementById('zoom-fit') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset') as HTMLButtonElement;
 const placeholderEl = document.querySelector('.placeholder') as HTMLDivElement;
+const jxlSupportEl = document.getElementById('jxl-support') as HTMLSpanElement;
+const presetsSelect = document.getElementById('presets') as HTMLSelectElement;
 const mainEl = document.getElementById('main') as HTMLElement;
 const resizerEl = document.getElementById('resizer') as HTMLDivElement;
 const editorPanel = document.querySelector('.editor-panel') as HTMLDivElement;
@@ -38,6 +41,18 @@ let worker: Remote<WorkerApi>;
 let currentJxlData: Uint8Array | null = null;
 let currentPngBlob: Blob | null = null;
 let isRunning = false;
+let supportsJxl = false;
+
+// Detect native JXL support
+async function detectJxlSupport(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.width === 1);
+    img.onerror = () => resolve(false);
+    // Smallest valid JXL (1x1 pixel)
+    img.src = 'data:image/jxl;base64,/woIELASCAgQAFwASxLFgkWAHL0xqnCBCV0qDp901Te/5QM=';
+  });
+}
 
 // Zoom state
 let zoomLevel = 1;
@@ -73,20 +88,28 @@ async function run() {
 
   try {
     const code = codeEl.value;
+    // Always generate PNG for download, even if we display JXL natively
     const result = await worker.render(code);
     
     currentJxlData = result.jxlData;
-    currentPngBlob = new Blob([new Uint8Array(result.pngData)], { type: 'image/png' });
     
-    // Display
-    const url = URL.createObjectURL(currentPngBlob);
+    // Display - use native JXL if supported, otherwise PNG
+    let displayBlob: Blob;
+    if (supportsJxl) {
+      displayBlob = new Blob([new Uint8Array(result.jxlData)], { type: 'image/jxl' });
+      currentPngBlob = null; // PNG not generated when using native JXL
+    } else {
+      currentPngBlob = new Blob([new Uint8Array(result.pngData)], { type: 'image/png' });
+      displayBlob = currentPngBlob;
+    }
+    const url = URL.createObjectURL(displayBlob);
     previewImg.src = url;
     placeholderEl.classList.add('hidden');
     
     // Update UI
     downloadJxlBtn.disabled = false;
-    downloadPngBtn.disabled = false;
-    sizeInfoEl.textContent = `JXL: ${result.jxlData.byteLength} bytes`;
+    downloadPngBtn.disabled = supportsJxl; // PNG not available with native JXL
+    sizeInfoEl.textContent = `JXL: ${result.jxlData.byteLength} bytes${supportsJxl ? ' (native)' : ''}`;
     
     log(`Success! JXL size: ${result.jxlData.byteLength} bytes`, 'success');
     
@@ -174,6 +197,22 @@ codeEl.addEventListener('keydown', (e) => {
 // Code change - save to storage
 codeEl.addEventListener('input', () => {
   saveCode(codeEl.value);
+  // Reset preset dropdown when user edits code
+  presetsSelect.value = '';
+});
+
+// Presets dropdown
+presetsSelect.addEventListener('change', () => {
+  const selected = presetsSelect.value;
+  if (!selected) return;
+  
+  const preset = presets.find(p => p.name === selected);
+  if (preset) {
+    codeEl.value = preset.code;
+    saveCode(preset.code);
+    log(`Loaded preset: ${preset.name}`, 'info');
+    run(); // Auto-run when preset is selected
+  }
 });
 
 // Zoom functions
@@ -371,9 +410,32 @@ window.addEventListener('touchend', () => {
   isResizing = false;
 });
 
+// Populate presets dropdown
+function populatePresets() {
+  presets.forEach(preset => {
+    const option = document.createElement('option');
+    option.value = preset.name;
+    option.textContent = preset.name;
+    option.title = preset.description;
+    presetsSelect.appendChild(option);
+  });
+}
+
 // Initialize
 async function init() {
   worker = createWorker();
+  
+  // Populate presets
+  populatePresets();
+  
+  // Detect native JXL support
+  supportsJxl = await detectJxlSupport();
+  if (supportsJxl) {
+    console.log('[JXL Art] Native JXL support detected - using JXL for preview');
+    jxlSupportEl.classList.remove('hidden');
+  } else {
+    console.log('[JXL Art] No native JXL support - using PNG for preview');
+  }
   
   // Load code: URL > saved > default
   const urlCode = getCodeFromUrl();

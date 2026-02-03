@@ -3,7 +3,11 @@ export interface RenderResult {
   pngData: Uint8Array;
 }
 
+export interface RenderOptions {
+  skipPng?: boolean;
+}
+
 export interface WorkerApi {
-  render(code: string): Promise<RenderResult>;
+  render(code: string, options?: RenderOptions): Promise<RenderResult>;
   prettier(code: string): string;
 }

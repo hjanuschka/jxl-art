@@ -14,9 +14,15 @@
     <div id="app">
       <header>
         <h1>JXL Art</h1>
-        <a href="https://github.com/libjxl/libjxl" target="_blank" class="powered-by">
-          Powered by libjxl
-        </a>
+        <div class="header-right">
+          <span id="jxl-support" class="jxl-support hidden" title="Your browser supports JXL natively!">
+            <span class="status-dot"></span>
+            JXL Native
+          </span>
+          <a href="https://github.com/libjxl/libjxl" target="_blank" class="powered-by">
+            Powered by libjxl
+          </a>
+        </div>
       </header>
 
       <main id="main">
@@ -40,6 +46,9 @@ if y > 256
 </textarea>
           <div class="controls">
             <button id="run" class="primary">Run ▶️</button>
+            <select id="presets" title="Load a preset example">
+              <option value="">Presets...</option>
+            </select>
             <button id="share">Share 🔗</button>
             <button id="prettier">Prettify ✨</button>
             <button id="help">Help 📖</button>
