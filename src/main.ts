@@ -4,6 +4,7 @@ import { helpContent } from './lib/help-content';
 import { saveCode, loadCode } from './lib/storage';
 import { getCodeFromUrl, copyShareUrl } from './lib/url';
 import { presets } from './lib/presets';
+import { highlightCode, getCompletions, HEADER_KEYWORDS, KEYWORDS, PROPERTIES, PREDICTORS } from './lib/syntax';
 
 // DOM Elements
 const codeEl = document.getElementById('code') as HTMLTextAreaElement;
@@ -31,6 +32,8 @@ const zoomResetBtn = document.getElementById('zoom-reset') as HTMLButtonElement;
 const placeholderEl = document.querySelector('.placeholder') as HTMLDivElement;
 const jxlSupportEl = document.getElementById('jxl-support') as HTMLSpanElement;
 const lineNumbersEl = document.getElementById('line-numbers') as HTMLDivElement;
+const codeHighlightEl = document.getElementById('code-highlight') as HTMLPreElement;
+const autocompleteEl = document.getElementById('autocomplete') as HTMLDivElement;
 const presetsBtn = document.getElementById('presets-btn') as HTMLButtonElement;
 const presetsDialog = document.getElementById('presets-dialog') as HTMLDialogElement;
 const presetsGrid = document.getElementById('presets-grid') as HTMLDivElement;
@@ -123,7 +126,7 @@ async function run() {
     
     // Update UI
     downloadJxlBtn.disabled = false;
-    downloadPngBtn.disabled = supportsJxl; // PNG not available with native JXL
+    downloadPngBtn.disabled = false; // Always enable - convert on demand
     sizeInfoEl.textContent = `JXL: ${result.jxlData.byteLength} bytes${supportsJxl ? ' (native)' : ''}`;
     
     log(`Success! JXL size: ${result.jxlData.byteLength} bytes`, 'success');
@@ -176,9 +179,20 @@ downloadJxlBtn.addEventListener('click', () => {
   }
 });
 
-downloadPngBtn.addEventListener('click', () => {
+downloadPngBtn.addEventListener('click', async () => {
   if (currentPngBlob) {
     downloadBlob(currentPngBlob, 'art.png');
+  } else if (currentJxlData && supportsJxl) {
+    // Convert JXL to PNG on demand (when using native JXL preview)
+    log('Converting to PNG...', 'info');
+    try {
+      const result = await worker.render(codeEl.value);
+      const pngBlob = new Blob([new Uint8Array(result.pngData)], { type: 'image/png' });
+      downloadBlob(pngBlob, 'art.png');
+      log('PNG downloaded', 'success');
+    } catch (e) {
+      log('Failed to convert to PNG', 'error');
+    }
   }
 });
 
@@ -190,35 +204,180 @@ codeEl.addEventListener('keydown', (e) => {
   }
 });
 
-// Update line numbers
-function updateLineNumbers() {
+// Update line numbers and syntax highlighting
+function updateEditor() {
+  // Line numbers
   const lines = codeEl.value.split('\n').length;
   const numbers = Array.from({ length: lines }, (_, i) => `<span>${i + 1}</span>`).join('');
   lineNumbersEl.innerHTML = numbers;
+  
+  // Syntax highlighting
+  codeHighlightEl.innerHTML = highlightCode(codeEl.value) + '\n'; // Extra newline for cursor space
 }
 
-// Sync scroll between line numbers and code
+// Sync scroll between all editor elements
 codeEl.addEventListener('scroll', () => {
   lineNumbersEl.scrollTop = codeEl.scrollTop;
+  codeHighlightEl.scrollTop = codeEl.scrollTop;
+  codeHighlightEl.scrollLeft = codeEl.scrollLeft;
 });
 
-// Tab key inserts spaces instead of changing focus
+// Autocomplete state
+let autocompleteItems: string[] = [];
+let autocompleteIndex = 0;
+
+function showAutocomplete(items: string[]) {
+  if (items.length === 0) {
+    hideAutocomplete();
+    return;
+  }
+  
+  autocompleteItems = items;
+  autocompleteIndex = 0;
+  
+  // Get cursor position
+  const cursorPos = codeEl.selectionStart;
+  const textBefore = codeEl.value.substring(0, cursorPos);
+  const lines = textBefore.split('\n');
+  const currentLine = lines.length - 1;
+  const currentCol = lines[lines.length - 1].length;
+  
+  // Position autocomplete
+  const lineHeight = 19.5; // 13px * 1.5 line-height
+  const charWidth = 7.8; // approximate for monospace
+  const top = (currentLine + 1) * lineHeight + 16; // 16px padding
+  const left = currentCol * charWidth + 16;
+  
+  autocompleteEl.style.top = `${Math.min(top, codeEl.offsetHeight - 100)}px`;
+  autocompleteEl.style.left = `${Math.min(left, codeEl.offsetWidth - 160)}px`;
+  
+  renderAutocomplete();
+  autocompleteEl.classList.remove('hidden');
+}
+
+function hideAutocomplete() {
+  autocompleteEl.classList.add('hidden');
+  autocompleteItems = [];
+}
+
+function renderAutocomplete() {
+  autocompleteEl.innerHTML = autocompleteItems.map((item, i) => {
+    let typeClass = '';
+    let typeName = '';
+    
+    if (KEYWORDS.includes(item as any)) {
+      typeClass = 'type-keyword';
+      typeName = 'keyword';
+    } else if (HEADER_KEYWORDS.includes(item as any)) {
+      typeClass = 'type-header';
+      typeName = 'header';
+    } else if (PROPERTIES.includes(item as any)) {
+      typeClass = 'type-property';
+      typeName = 'prop';
+    } else if (PREDICTORS.includes(item as any)) {
+      typeClass = 'type-predictor';
+      typeName = 'pred';
+    }
+    
+    return `<div class="autocomplete-item${i === autocompleteIndex ? ' selected' : ''}" data-index="${i}">
+      <span>${item}</span>
+      ${typeName ? `<span class="type ${typeClass}">${typeName}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function applyAutocomplete() {
+  if (autocompleteItems.length === 0) return;
+  
+  const item = autocompleteItems[autocompleteIndex];
+  const cursorPos = codeEl.selectionStart;
+  const textBefore = codeEl.value.substring(0, cursorPos);
+  const textAfter = codeEl.value.substring(cursorPos);
+  
+  // Find the word we're completing
+  const match = textBefore.match(/[\w\-|]*$/);
+  const wordStart = match ? cursorPos - match[0].length : cursorPos;
+  
+  codeEl.value = codeEl.value.substring(0, wordStart) + item + textAfter;
+  codeEl.selectionStart = codeEl.selectionEnd = wordStart + item.length;
+  
+  hideAutocomplete();
+  updateEditor();
+  saveCode(codeEl.value);
+}
+
+// Editor keyboard handling
 codeEl.addEventListener('keydown', (e) => {
+  // Autocomplete navigation
+  if (!autocompleteEl.classList.contains('hidden')) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      autocompleteIndex = (autocompleteIndex + 1) % autocompleteItems.length;
+      renderAutocomplete();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      autocompleteIndex = (autocompleteIndex - 1 + autocompleteItems.length) % autocompleteItems.length;
+      renderAutocomplete();
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      applyAutocomplete();
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideAutocomplete();
+      return;
+    }
+  }
+  
+  // Tab key inserts spaces
   if (e.key === 'Tab') {
     e.preventDefault();
     const start = codeEl.selectionStart;
     const end = codeEl.selectionEnd;
     codeEl.value = codeEl.value.substring(0, start) + '  ' + codeEl.value.substring(end);
     codeEl.selectionStart = codeEl.selectionEnd = start + 2;
-    updateLineNumbers();
+    updateEditor();
     saveCode(codeEl.value);
   }
 });
 
-// Code change - save to storage and update line numbers
+// Code change - save, update editor, and show autocomplete
 codeEl.addEventListener('input', () => {
   saveCode(codeEl.value);
-  updateLineNumbers();
+  updateEditor();
+  
+  // Trigger autocomplete
+  const cursorPos = codeEl.selectionStart;
+  const textBefore = codeEl.value.substring(0, cursorPos);
+  const currentLine = textBefore.split('\n').pop() || '';
+  
+  // Only show autocomplete if we're typing a word (not just whitespace)
+  const match = currentLine.match(/[\w\-|]+$/);
+  if (match && match[0].length >= 1) {
+    const completions = getCompletions(currentLine, currentLine.length);
+    showAutocomplete(completions.slice(0, 8)); // Limit to 8 items
+  } else {
+    hideAutocomplete();
+  }
+});
+
+// Click on autocomplete item
+autocompleteEl.addEventListener('click', (e) => {
+  const item = (e.target as HTMLElement).closest('.autocomplete-item');
+  if (item) {
+    autocompleteIndex = parseInt(item.getAttribute('data-index') || '0');
+    applyAutocomplete();
+  }
+});
+
+// Hide autocomplete when clicking outside
+codeEl.addEventListener('blur', () => {
+  setTimeout(hideAutocomplete, 150); // Delay to allow click on autocomplete
 });
 
 // Keyboard shortcuts
@@ -289,7 +448,7 @@ presetsGrid.addEventListener('click', (e) => {
   const preset = presets.find(p => p.name === presetName);
   if (preset) {
     codeEl.value = preset.code;
-    updateLineNumbers();
+    updateEditor();
     saveCode(preset.code);
     presetsDialog.close();
     log(`Loaded preset: ${preset.name}`, 'info');
@@ -562,7 +721,7 @@ async function init() {
   }
   
   // Initialize line numbers
-  updateLineNumbers();
+  updateEditor();
   
   log('Ready. Press Ctrl+Enter to generate image.', 'info');
   

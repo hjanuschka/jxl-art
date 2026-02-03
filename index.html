@@ -29,7 +29,9 @@
         <div class="editor-panel">
           <div class="code-editor">
             <div class="line-numbers" id="line-numbers"></div>
-            <textarea id="code" spellcheck="false">Bitdepth 8
+            <div class="code-wrapper">
+              <pre id="code-highlight" aria-hidden="true"></pre>
+              <textarea id="code" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">Bitdepth 8
 Width 512
 Height 512
 
@@ -46,6 +48,8 @@ if y > 256
   - W + 30
   - Set 180
 </textarea>
+              <div id="autocomplete" class="autocomplete hidden"></div>
+            </div>
           </div>
           <div class="controls">
             <button id="run" class="primary" title="Run (Ctrl+Enter)">Run ▶️</button>
