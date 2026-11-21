@@ -105,6 +105,16 @@ namespace jpegxl::tools {
 int JxlFromTree(const char *in, const char *out, const char *tree_out);
 }
 
+// typed_memory_view() does not copy: it is a view into WASM memory. Returning
+// one that points into a local buffer hands JS a view of freed memory, and the
+// allocator's free-list bookkeeping overwrites the first bytes. Copy into a
+// JS-owned Uint8Array while the buffer is still alive.
+static val CopyToUint8Array(const uint8_t* data, size_t size) {
+    val out = val::global("Uint8Array").new_(size);
+    out.call<void>("set", val(typed_memory_view(size, data)));
+    return out;
+}
+
 val jxl_from_tree(std::string code) {
     // Write input to virtual filesystem
     std::ofstream inFile("/input.tree");
@@ -129,7 +139,7 @@ val jxl_from_tree(std::string code) {
                                std::istreambuf_iterator<char>());
     outFile.close();
     
-    return val(typed_memory_view(data.size(), data.data()));
+    return CopyToUint8Array(data.data(), data.size());
 }
 
 val decode(val jxlDataVal) {
@@ -163,7 +173,7 @@ val decode(val jxlDataVal) {
     }
     
     const auto& png = encoded.bitstreams.front();
-    return val(typed_memory_view(png.size(), png.data()));
+    return CopyToUint8Array(png.data(), png.size());
 }
 
 EMSCRIPTEN_BINDINGS(jxl_art) {
