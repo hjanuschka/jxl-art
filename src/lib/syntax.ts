@@ -1,5 +1,6 @@
 // JXL Tree Syntax definitions
 
+// Must stay in sync with ParseHeader() in libjxl's tools/jxl_from_tree.cc.
 export const HEADER_KEYWORDS = [
   'Bitdepth',
   'Width',
@@ -16,6 +17,23 @@ export const HEADER_KEYWORDS = [
   '16BitBuffers',
   'Squeeze',
   'CbYCr',
+  'GroupShift',
+  'HiddenChannel',
+  'FloatExpBits',
+  'Upsample',
+  'Animation',
+  'AnimationFPS',
+  'Duration',
+  'BlendMode',
+  'SplineQuantizationAdjustment',
+  'Spline',
+  'EndSpline',
+  'DeltaPalette',
+  'Noise',
+  'Rec2100',
+  'PQ',
+  'HLG',
+  'P3',
 ] as const;
 
 export const PROPERTIES = [
